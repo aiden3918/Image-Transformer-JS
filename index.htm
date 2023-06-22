@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="title">Pixel Art Generator</div>
+        </div>
+        <main>
+            <div id="initial-config">
+                <div id="settings" class="main-grid">
+                    <label for="algo-type">Algorithm Type: </label>
+                    <select name="algo-type" id="algo-type">
+                        <option value="regular">Regular</option>
+                        <!--add more in the future perhaps-->
+                    </select>
+                    <br>
+
+                    <label for="filter">Filter: </label>
+                    <select name="filter" id="filter">
+                        <option value="regular">Regular</option>
+                        <!--add greyscale, reverse, saturation in the future maybe, as well as dynamic hsl configurations-->
+                    </select>
+                    <br>
+
+                    <label for="pixel-count">Max Pixels (from Width): </label>
+                    <input name="pixel-count" type="range" min="1" max="1000" step="1" value="100" onchange="updatePixelCountDisplay(event)" id="pixel-count-slider">
+                    <span id="pixel-count-display">100</span>
+                    <br>
+
+                    <button type="button" id="generate-image-btn">Generate Image</button>
+                </div>
+
+                <div id="original-image-section" class="main-grid">
+                    <img src="" alt="User Uploaded Image" id="user-image"><br>
+                    <input type="file" accept="image/*" id="image-upload" name="image-upload" onchange="displayImageFile(event)">
+                </div>
+            </div>
+
+            <div id="transformed-image-section">
+                <p id="new-image-subtitle">New Image</p>
+                <canvas id="test"></canvas>
+                <img src="images/jimmy.jpg" alt="Transformed Image" id="new-image">
+                <div id="new-image-btns">
+                    <button type="button" id="save-btn" class="new-image-btns">Save</button>
+                    <button type="button" id="print-btn" class="new-image-btns">Print</button>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <p>hi this app was created by me aidenhangwei</p>
+        </footer>
+        <script src="index.js"></script>
+    </body>
+</html>

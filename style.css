@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Electrolize&family=VT323&display=swap');
+
+html {
+    background-color: #404040;
+    margin: 0;
+    color: antiquewhite;
+}
+
+body {
+    margin: 0;
+}
+
+main {
+    font-family: "Electrolize", Helvetica, Arial;
+}
+
+#initial-config {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    
+}
+
+#settings {
+    padding-right: 5vw;
+    padding-left: 5vw;
+    border-right: 1px solid antiquewhite;
+}
+
+#title {
+    font-family: 'VT323', monospace, Arial;
+    background-color: #171717;
+    font-size: 70px; 
+    text-align: center;
+    margin: 0 0 2vw 0;
+    padding: 13px;
+}
+
+#settings {
+    table-layout: fixed;
+    font-size: 24px;
+    margin: 0 auto;
+    line-height: 2;
+}
+
+#original-image-section {
+    padding-left: 5vw;
+    width: 500px;
+    height: 700px;
+}
+
+
+/*new image*/
+
+#transformed-image-section {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#new-image-subtitle {
+    font-size: 30px;
+    text-align: center;
+}
+
+#new-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.new-image-btns {
+    align-items: center;
+}
+
+#test {
+    border: 1px solid antiquewhite;
+    margin: 0 auto;
+    overflow: visible;
+}
+
+/*footer*/
+footer{
+    background-color: #171717;
+    padding: 10px 10vw 10px 10vw;
+    margin: 0;
+}
