@@ -60,9 +60,18 @@ function displayImageFile(e) {
 }
 
 // create new image on generate-image-btn click
-generateImageBtn.onclick = () => generateImage(pixelCountSlider.value);
+generateImageBtn.onclick = () => checkDesiredWith(Number(pixelCountSlider.value));
+
+function checkDesiredWith(pixelCountWidth) {
+    if (pixelCountWidth >= image.width) alert("Please adjust the slider so that the desired width of the new image is LESS THAN the width of the original image.");    
+    else if (image.src == 'http://127.0.0.1:5500/index.htm') alert("Please upload an image.");
+    else generateImage(pixelCountWidth);
+}
 
 function generateImage(pixelCountWidth) {
+    // clear canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     // get image data
     context.drawImage(image, 0, 0);
     let imageDataArr = context.getImageData(0, 0, image.width, image.height).data;
@@ -76,10 +85,11 @@ function generateImage(pixelCountWidth) {
     console.log("width: " + width);
     console.log("height: " + height);
 
+    //resize canvas
     canvas.width = width;
     canvas.height = height;
-    context.clearRect(0, 0, width, height);
 
+    //"size" of pixels
     let pixelSize = Math.floor(canvas.width / pixelCountWidth);
     console.log("pixelSize: " + pixelSize);
 
@@ -90,10 +100,12 @@ function generateImage(pixelCountWidth) {
     // # of iterations vertically (height) calculated using aspect ratio
     for (let i = 0; i < Math.floor(pixelCountWidth * height / width); i++) {
         for (let j = 0; j < pixelCountWidth; j++) {
-            let currentPixelAvgRGB = calculateAverageRGBValues(imageDataArr, j, i, pixelSize, pixelSize * pixelCountWidth);
+            let currentPixelAvgRGB = calculateAverageRGBValues(imageDataArr, j, i, pixelSize, width);
+            console.log(currentPixelAvgRGB);
+
             context.fillStyle = "rgba(" + currentPixelAvgRGB.toString() + ",255)";
             context.fillRect(j * pixelSize, i * pixelSize, pixelSize, pixelSize);
-            console.log(currentPixelAvgRGB);
+            
         }
     }
 }
@@ -105,7 +117,7 @@ function calculateAverageRGBValues(imageDataAsArray, startingXPixel, startingYPi
     let avg = [0, 0, 0];
 
     let startingXIndexCorrelation = 4 * startingXPixel * pixelSize;
-    let startingYIndexCorrelation = 4 * startingYPixel * width; 
+    let startingYIndexCorrelation = 4 * startingYPixel * width * pixelSize; 
 
     // repeat this for r, g, and b values
     for (let i = 0 ; i < 3; i++) {
@@ -119,11 +131,15 @@ function calculateAverageRGBValues(imageDataAsArray, startingXPixel, startingYPi
             }
         }
         // avg out and put it in single array
-        avg[i] = Math.round(sum / Math.pow(pixelSize, 2));
+        avg[i] = Math.round(sum / (Math.pow(pixelSize, 2)));
     }
 
     return avg;
 }
+
+// OKAY SO IT WORKS ON THE UNPLEASANT GRADIENT BUT NOT ON TESTGUY
+// THE ALGORITHM MESSES UP BECAUSE THE IMAGE DATA ARRAY STILL HAS THE PIXEL DATA FROM THE PARTS THAT ARE CLIPPED OUT
+// I THINK THAT FIXED PART OF IT
 
 
 /*function displayCanvasImage(url) {
