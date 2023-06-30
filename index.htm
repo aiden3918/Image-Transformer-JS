@@ -9,21 +9,15 @@
         <main>
             <div id="initial-config">
                 <div id="settings" class="main-grid">
-                    <label for="algo-type">Algorithm Type: </label>
-                    <select name="algo-type" id="algo-type">
-                        <option value="regular">Regular</option>
-                        <!--add more in the future perhaps-->
-                    </select>
-                    <br>
-
                     <label for="filter">Filter: </label>
                     <select name="filter" id="filter">
-                        <option value="regular">Regular</option>
-                        <!--add greyscale, reverse, saturation in the future maybe, as well as dynamic hsl configurations-->
+                        <option value="pixel">Pixelate</option> <!-- average rgb values of a certain section -->
+                        <option value="invert">Invert</option> <!-- invert pixel: invertedElement = (255 - element) -->
+                        <option value="greyscale">Greyscale</option> <!-- greyscale pixel: average rgb (0 = black, 255 = white) -->
                     </select>
                     <br>
 
-                    <label for="pixel-count">Max Pixels (from Width): </label>
+                    <label for="pixel-count">Approx. Max Pixels (from Width): </label>
                     <input name="pixel-count" type="range" min="1" max="100" step="1" value="100" onchange="updatePixelCountDisplay(event)" id="pixel-count-slider">
                     <span id="pixel-count-display">100</span>
                     <br>
@@ -33,7 +27,7 @@
 
                 <div id="original-image-section" class="main-grid">
                     <img src="" alt="User Uploaded Image" id="user-image"><br>
-                    <input type="file" accept="image/*" id="image-upload" name="image-upload" onchange="displayImageFile(event)">
+                    <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" id="image-upload" name="image-upload" onchange="displayImageFile(event)">
                 </div>
             </div>
 
@@ -44,6 +38,9 @@
                     <button type="button" id="save-btn" class="new-image-btns">Save</button>
                     <button type="button" id="print-btn" class="new-image-btns">Print</button>
                 </div>
+            </div>
+            <div id="modal">
+                <p id="modal-text">Loading...</p>
             </div>
         </main>
         <footer>

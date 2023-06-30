@@ -81,3 +81,23 @@ footer{
     padding: 10px 10vw 10px 10vw;
     margin: 0;
 }
+
+/*modal*/
+#modal {
+    background-color: gray;
+    color: black;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    opacity: 50%;
+    z-index: 1;
+    padding: 20% 0 0 45%;
+    display: none;
+}
+
+#modal-text {
+    opacity: 100%;
+    font-size: 40px;
+}
