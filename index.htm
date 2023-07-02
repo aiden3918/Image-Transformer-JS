@@ -4,39 +4,50 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
-        <div id="title">Pixel Art Generator</div>
+        <div id="title">Image Transformer</div>
         </div>
         <main>
             <div id="initial-config">
                 <div id="settings" class="main-grid">
                     <label for="filter">Filter: </label>
-                    <select name="filter" id="filter">
+                    <select name="filter" id="filter" onchange="onFilterChange(event)">
                         <option value="pixel">Pixelate</option> <!-- average rgb values of a certain section -->
                         <option value="invert">Invert</option> <!-- invert pixel: invertedElement = (255 - element) -->
                         <option value="greyscale">Greyscale</option> <!-- greyscale pixel: average rgb (0 = black, 255 = white) -->
                     </select>
                     <br>
 
-                    <label for="pixel-count">Approx. Max Pixels (from Width): </label>
-                    <input name="pixel-count" type="range" min="1" max="100" step="1" value="100" onchange="updatePixelCountDisplay(event)" id="pixel-count-slider">
-                    <span id="pixel-count-display">100</span>
+                    <label for="pixel-count" class="pixel-settings">Pixels (from Width): </label>
+                    <input name="pixel-count" type="range" min="1" max="100" step="1" value="100" onchange="updatePixelCountDisplay(event)" id="pixel-count-slider" class="pixel-settings">
+                    <span id="pixel-count-display" class="pixel-settings">100</span>
                     <br>
+
+                    <p id="pixel-size" class="pixel-other pixel-settings">Predicted Pixel Size: </p>
+                    <p id="new-dimensions" class="pixel-other pixel-settings">Predicted New Image Dimensions: </p>
+                    <p id="runoff-pixels" class="pixel-other pixel-settings">Leftover pixels (from right and bottom): </p>
 
                     <button type="button" id="generate-image-btn">Generate Image</button>
                 </div>
 
                 <div id="original-image-section" class="main-grid">
                     <img src="" alt="User Uploaded Image" id="user-image"><br>
+                    <p id="image-dimensions"></p>
                     <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" id="image-upload" name="image-upload" onchange="displayImageFile(event)">
                 </div>
             </div>
-
+            <div id="image-resizer-section">
+                <p id="image-resizer-text">Want to resize an image to create a perfect pixelation? Click here: <a href="https://imageresizer.com/" target="_blank">Image Resizer</a><br>
+                Tip: for perfect pixelation, change the image's width to the product of the pixel size and the desired width from the slider (new width = pixel size * # of pixels) </p>
+            </div>
             <div id="transformed-image-section">
                 <p id="new-image-subtitle">New Image</p>
-                <canvas id="test"></canvas>
-                <div id="new-image-btns">
-                    <button type="button" id="save-btn" class="new-image-btns">Save</button>
-                    <button type="button" id="print-btn" class="new-image-btns">Print</button>
+                <div id="canvas-div">
+                    <canvas id="new-image-canvas"></canvas>
+                    <div id="new-image-btns">
+                        <button type="button" id="save-btn" class="new-image-btns">Save</button>
+                        <button type="button" id="print-btn" class="new-image-btns">Print</button>
+                    </div>
+                    <a id="download-link" style="display: none;"></a>
                 </div>
             </div>
             <div id="modal">
@@ -44,7 +55,9 @@
             </div>
         </main>
         <footer>
-            <p>hi this app was created by me aidenhangwei</p>
+            <p style="font-size: 18px;">Aiden Li</p>
+            <p>Contact Me: liaiden3918@gmail.com</p>
+            <p>I don't have a registered copyright on this, but if you do want to use my work, please credit me. :)</p>
         </footer>
         <script src="index.js"></script>
     </body>

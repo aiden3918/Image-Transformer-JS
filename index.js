@@ -1,22 +1,74 @@
 // user-imported image
-let image = document.getElementById("user-image");
-let imageUploadInput = document.getElementById("image-upload");
+const image = document.getElementById("user-image");
+const imageUploadInput = document.getElementById("image-upload");
 
 // canvas to read data and output new image
-let canvas = document.getElementById("test");
-let context = canvas.getContext("2d", {willReadFrequently: true}); // IE9 exception
+const canvas = document.getElementById("new-image-canvas");
+const context = canvas.getContext("2d", {willReadFrequently: true}); // IE9 exception
 
 // settings and ui elements
-let pixelCountSlider = document.getElementById("pixel-count-slider");
-let pixelCountDisplay = document.getElementById("pixel-count-display");
-let generateImageBtn = document.getElementById("generate-image-btn");
+const pixelCountSlider = document.getElementById("pixel-count-slider");
+const pixelCountDisplay = document.getElementById("pixel-count-display");
+const generateImageBtn = document.getElementById("generate-image-btn");
+const filterType = document.getElementById("filter");
 
-let modal = document.getElementById("modal");
+const pixelSizeDisplay = document.getElementById("pixel-size");
+const predictedNewImageDimensionsDisplay = document.getElementById("new-dimensions");
+const leftoverPixelsDisplay = document.getElementById("runoff-pixels");
+const imageDimensionsText = document.getElementById("image-dimensions");
 
-let supportedFileTypes = [".png", ".jpg", ".jpeg", ".webp", ".pjp", ".jfif", ".pjpeg"];
+const saveBtn = document.getElementById("save-btn");
+const printBtn = document.getElementById("print-btn");
+
+const modal = document.getElementById("modal");
+
+const downloadLink = document.getElementById("download-link");
+
+const supportedFileTypes = [".png", ".jpg", ".jpeg", ".webp", ".pjp", ".jfif", ".pjpeg"];
 
 // obvious
-updatePixelCountDisplay = (e) => pixelCountDisplay.innerText = String(e.target.value);
+updatePixelCountDisplay = (e) => {
+    pixelCountDisplay.innerText = String(e.target.value);
+    updateOtherInfo();
+}
+
+onFilterChange = (e) => {
+    console.log(e);
+    console.log(e.target.value);
+    let pixelSettings = document.getElementsByClassName("pixel-settings");
+    switch (e.target.value) {
+        case "pixel":
+            for (let i = 0; i < pixelSettings.length; i++) pixelSettings[i].style.display = "block";
+            break;
+        case "invert":
+        case "greyscale":
+            for (let i = 0; i < pixelSettings.length; i++) pixelSettings[i].style.display = "none";
+            break;
+    }
+} 
+
+// create new image on generate-image-btn click
+generateImageBtn.onclick = () => checkConditions(Number(pixelCountSlider.value));
+saveBtn.onclick = () => saveImage();
+printBtn.onclick = () => window.print();
+
+// display user-imported image
+function displayImageFile(e) {
+    if (!checkFileType(e)) return;
+    console.log("event: ", e);
+
+    // create url blob to display as image source
+    let url = URL.createObjectURL(e.target.files[0]);
+    image.src = url;
+
+    console.log("image.src: " + image.src);
+    image.onload = () => {
+        image.style.width = image.naturalWidth + "px";
+        image.style.height = image.naturalHeight + "px";
+        imageDimensionsText.innerText = "Dimensions: " + image.width + " x " + image.height;
+        updateOtherInfo();
+    }
+}
 
 // check
 function checkFileType(event) {
@@ -31,29 +83,21 @@ function checkFileType(event) {
         alert("Please upload a supported file type.");
         event.value = null;
         return false;
-    } 
+    }
 
     return true;
 }
-// display user-imported image
-function displayImageFile(e) {
-    if (!checkFileType(e)) return;
-    console.log(e);
 
-    // create url blob to display as image source
-    let url = URL.createObjectURL(e.target.files[0]);
-    image.src = url;
-
-    console.log("image.src: " + image.src);
-    console.log("image width: " + image.width + " image height: " + image.height);
+function updateOtherInfo() {
+    let pixelSize = Math.floor(image.width / Number(pixelCountSlider.value));
+    let newWidth = pixelSize * pixelCountSlider.value;
+    pixelSizeDisplay.innerText = "Predicted Pixel Size: " + pixelSize;
+    predictedNewImageDimensionsDisplay.innerText = "Predicted New Image Dimensions: " + newWidth + " x " + Math.floor(newWidth * image.height / image.width);
+    leftoverPixelsDisplay.innerText = (image.width - newWidth) + "px off the right, " + (image.height - Math.floor(newWidth * image.height / image.width)) + "px off the bottom";
 }
 
-// create new image on generate-image-btn click
-generateImageBtn.onclick = () => checkConditions(Number(pixelCountSlider.value));
-
-function checkConditions(pixelCountWidth) {
-    if (pixelCountWidth >= image.width) alert("Please adjust the slider so that the desired width (in pixels) of the new image is LESS THAN the width of the original image.");    
-    else if (image.src == 'http://127.0.0.1:5500/index.htm') alert("Please upload an image.");
+function checkConditions(pixelCountWidth) { 
+    if (image.src == 'http://127.0.0.1:5500/index.htm') alert("Please upload an image.");
     else generateImage(pixelCountWidth);
 }
 
@@ -63,32 +107,50 @@ function generateImage(pixelCountWidth) {
 
     // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
+    // // reset image size
+    // image.style.width = "auto"
+    // image.style.height = "auto";
 
+    canvas.width = image.width;
+    canvas.height = image.height;
+    
+    // get image data
+    context.drawImage(image, 0, 0); // drawing natural image, not client image
+    let imageData = context.getImageData(0, 0,  canvas.width, canvas.height);
+
+    switch (filterType.value) {
+        case "pixel": 
+            if (pixelCountWidth >= image.width) alert("Please adjust the slider so that the desired width (in pixels) of the new image is LESS THAN the width of the original image.");
+            else pixelateImage(pixelCountWidth);
+            break;
+        case "invert": invertImage(imageData); break;
+        case "greyscale": greyscaleImage(imageData); break;
+    }
+
+    modal.style.display = "none";
+}
+
+function pixelateImage(pixelCountWidth) {
     //"size" of pixels
-    let pixelSize = Math.floor(image.width / pixelCountWidth);
+    const pixelSize = Math.floor(image.width / pixelCountWidth);
     console.log("pixelSize: " + pixelSize);
 
-    // resize canvas to fit # of pixels exactly
-    let originalImageWidth = image.width;
-    let originalImageHeight = image.height;
-
-    image.width = pixelSize * pixelCountWidth;
+    // resize image and canvas
+    image.style.width = (pixelSize * pixelCountWidth) + "px";
     image.style.height = "auto";
-    console.log("canvas width: " + canvas.width + "      canvas height: " + canvas.height);
+
+    canvas.width = image.clientWidth
+    canvas.height = image.clientHeight;
 
     // get image data
-    context.drawImage(image, 0, 0);
+    context.drawImage(image, 0, 0); // drawing natural image, not client image
     let imageDataArr = context.getImageData(0, 0,  canvas.width, canvas.height).data;
-    // << let rgbImageDataArr = imageDataArr.filter((element, index) => (index + 1) % 4 != 0); // filter every a value for rgba -> rgb >>
     console.log("image rgba data: ", imageDataArr);
-
-    // maybe round pixel rgb values before averaging? well see how it goes first
-    // let roundedimageData = iamgeDataArr.map(e => )
     
     // "iterate" through all sections that will be simplified to one pixel
     // # of iterations vertically (height) calculated using aspect ratio
-    for (let i = 0; i < canvas.height; i++) {
-        for (let j = 0; j < canvas.width; j++) {
+    for (let i = 0; i < pixelCountWidth * image.naturalHeight / image.naturalWidth; i++) {
+        for (let j = 0; j < pixelCountWidth; j++) {
             let currentPixelAvgRGB = calculateAverageRGBValues(imageDataArr, j, i, pixelSize, canvas.width);
 
             context.fillStyle = "rgba(" + currentPixelAvgRGB.toString() + ",255)";
@@ -96,17 +158,11 @@ function generateImage(pixelCountWidth) {
         }
     }
 
+    image.style.width = image.naturalWidth + "px";
+    image.style.height = image.naturalHeight + "px";
+
     let newImageDataArr = context.getImageData(0, 0,  canvas.width, canvas.height).data;
     console.log("new image rgba data: ", newImageDataArr);
-
-    image.width = originalImageWidth;
-    image.height = originalImageHeight;
-
-    modal.style.display = "none";
-}
-
-function pixelateImage(pixelCountWidth, imageDataArr) {
-    console.log("to be continued...");
 }
 
 // average all rgba values for each "pixel"
@@ -139,59 +195,37 @@ function calculateAverageRGBValues(imageDataAsArray, startingXPixel, startingYPi
     return avg;
 }
 
-// sometimes it bugs out on the first or second try, probably need async implementation to fix that (or more settimeouts lol)
-// need async or promise based for getting image array AFTER image resizing
-// need async on generateImage so it runs synchronously (ironic)
-
-/*async function generateImage(pixelCountWidth) {
-    // clear canvas
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // get image data
-    context.drawImage(image, 0, 0);
-    let imageDataArr = context.getImageData(0, 0, image.width, image.height).data;
-    // << let rgbImageDataArr = imageDataArr.filter((element, index) => (index + 1) % 4 != 0); // filter every a value for rgba -> rgb >>
-    console.log("image rgba data: ", imageDataArr);
-
-    // resize canvas
-    canvas.width = image.width;
-    canvas.height = image.height;
-    console.log("width: " + canvas.width);
-    console.log("height: " + canvas.height);
-
-    //"size" of pixels
-    let pixelSize = Math.floor(canvas.width / pixelCountWidth);
-    console.log("pixelSize: " + pixelSize);
-
-    // maybe round pixel rgb values before averaging? well see how it goes first
-    // let roundedimageData = iamgeDataArr.map(e => )
-    
-    // "iterate" through all sections that will be simplified to one pixel
-    // # of iterations vertically (height) calculated using aspect ratio
-    let maxX = Math.floor(width / pixelSize);
-    let maxY = Math.floor(maxX * height / width);
-
-    for (let i = 0; i < maxY; i++) {
-        for (let j = 0; j < maxX; j++) {
-            let currentPixelAvgRGB = calculateAverageRGBValues(imageDataArr, j, i, pixelSize, width);
-
-            context.fillStyle = "rgba(" + currentPixelAvgRGB.toString() + ",255)";
-            context.fillRect(j * pixelSize, i * pixelSize, pixelSize, pixelSize);
-        }
+function invertImage(imageData) {
+    console.log("imagedata: ", imageData);
+    for (let i = 0; i < imageData.data.length; i++) {
+        if ((i + 1) % 4 != 0) imageData.data[i] = 255 - imageData.data[i];
     }
-}*/
-
-// change img width and height so that pixelated image fills entire screen
-
-/*
-greyscale:
-for (let i = 0; i < imageDataArr.length; i += 4) {
-    avg = (imageDataArr[i] + imageDataArr[i + 1] + imageDataArr[i + 2] + ) / 3
-    imageDataArr[i], imageDataArr[i + 1], imageDataArr[i + 2] = avg, avg, avg;
+    console.log("inverted image data: ", imageData);
+    context.putImageData(imageData, 0, 0);
 }
 
-invert:
-for (let i = 0; i < imageDataArr.length; i++) {
-    if (i % 4 != 0) imageDataArr[i] = 255 - imageDataArr[i];
+function greyscaleImage(imageData) {
+    console.log("imagedata: ", imageData);
+    let greyscaleAvg = 0;
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        greyscaleAvg = Math.round(imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+        imageData.data[i] = imageData.data[i + 1] = imageData.data[i + 2] = greyscaleAvg;
+    }
+    console.log("greyscaled image data: ", imageData);
+    context.putImageData(imageData, 0, 0);
 }
-*/
+
+function saveImage() {
+    let currentDate = `${String((date.getMonth() + 1)).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`;
+    let currentTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+    let importFileName = imageUploadInput.files[0].name;
+    downloadLink.setAttribute('download', `${importFileName.substring(0 , importFileName.lastIndexOf("."))} ${currentDate} ${currentTime}.png`);
+    downloadLink.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+    downloadLink.click();
+}
+
+let date = new Date();
+console.log(`${String((date.getMonth() + 1)).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`);
+
+console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);

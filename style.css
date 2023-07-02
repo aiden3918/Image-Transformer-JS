@@ -6,6 +6,14 @@ html {
     color: antiquewhite;
 }
 
+a {
+    color: antiquewhite;
+}
+
+a:visited {
+    color: lightpink;
+}
+
 body {
     margin: 0;
 }
@@ -18,6 +26,11 @@ main {
     display: grid;
     grid-template-columns: 30% 70%;
     
+}
+
+.pixel-other {
+    font-size: 18px;
+    line-height: 1;
 }
 
 #settings {
@@ -69,8 +82,7 @@ main {
     align-items: center;
 }
 
-#test {
-    border: 1px solid antiquewhite;
+#new-image-canvas {
     margin: 0 auto;
     overflow: visible;
 }
@@ -100,4 +112,29 @@ footer{
 #modal-text {
     opacity: 100%;
     font-size: 40px;
+}
+
+/*image resizer*/
+#image-resizer-text {
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/*canvas*/
+#canvas-div {
+    text-align: center;
+}
+
+@media print {
+    #title, #settings, #image-resizer-section, #new-image-subtitle, #new-image-btns, #image-dimensions, #image-upload, footer {
+        display: none;
+    }
+    #user-image, #new-image-canvas {
+        display: block;
+    }
+    #canvas-div {
+        display: flex;
+        justify-content: left;
+    }
 }
