@@ -33,8 +33,6 @@ updatePixelCountDisplay = (e) => {
 }
 
 onFilterChange = (e) => {
-    console.log(e);
-    console.log(e.target.value);
     let pixelSettings = document.getElementsByClassName("pixel-settings");
     switch (e.target.value) {
         case "pixel":
@@ -50,18 +48,16 @@ onFilterChange = (e) => {
 // create new image on generate-image-btn click
 generateImageBtn.onclick = () => checkConditions(Number(pixelCountSlider.value));
 saveBtn.onclick = () => saveImage();
-printBtn.onclick = () => window.print();
+printBtn.onclick = () => print();
 
 // display user-imported image
 function displayImageFile(e) {
     if (!checkFileType(e)) return;
-    console.log("event: ", e);
 
     // create url blob to display as image source
     let url = URL.createObjectURL(e.target.files[0]);
     image.src = url;
 
-    console.log("image.src: " + image.src);
     image.onload = () => {
         image.style.width = image.naturalWidth + "px";
         image.style.height = image.naturalHeight + "px";
@@ -75,8 +71,6 @@ function checkFileType(event) {
     // log some file data
     let filename = event.target.files[0].name;
     let filetype = filename.substring(filename.lastIndexOf("."), filename.length);
-    console.log("filename: " + filename);
-    console.log("file type: " + filetype);
     
     // check for unsupported file types
     if (!supportedFileTypes.includes(filetype)) {
@@ -107,9 +101,7 @@ function generateImage(pixelCountWidth) {
 
     // clear canvas
     context.clearRect(0, 0, canvas.width, canvas.height);
-    // // reset image size
-    // image.style.width = "auto"
-    // image.style.height = "auto";
+    // reset image size
 
     canvas.width = image.width;
     canvas.height = image.height;
@@ -133,7 +125,6 @@ function generateImage(pixelCountWidth) {
 function pixelateImage(pixelCountWidth) {
     //"size" of pixels
     const pixelSize = Math.floor(image.width / pixelCountWidth);
-    console.log("pixelSize: " + pixelSize);
 
     // resize image and canvas
     image.style.width = (pixelSize * pixelCountWidth) + "px";
@@ -145,7 +136,6 @@ function pixelateImage(pixelCountWidth) {
     // get image data
     context.drawImage(image, 0, 0); // drawing natural image, not client image
     let imageDataArr = context.getImageData(0, 0,  canvas.width, canvas.height).data;
-    console.log("image rgba data: ", imageDataArr);
     
     // "iterate" through all sections that will be simplified to one pixel
     // # of iterations vertically (height) calculated using aspect ratio
@@ -162,7 +152,6 @@ function pixelateImage(pixelCountWidth) {
     image.style.height = image.naturalHeight + "px";
 
     let newImageDataArr = context.getImageData(0, 0,  canvas.width, canvas.height).data;
-    console.log("new image rgba data: ", newImageDataArr);
 }
 
 // average all rgba values for each "pixel"
@@ -196,36 +185,27 @@ function calculateAverageRGBValues(imageDataAsArray, startingXPixel, startingYPi
 }
 
 function invertImage(imageData) {
-    console.log("imagedata: ", imageData);
     for (let i = 0; i < imageData.data.length; i++) {
         if ((i + 1) % 4 != 0) imageData.data[i] = 255 - imageData.data[i];
     }
-    console.log("inverted image data: ", imageData);
     context.putImageData(imageData, 0, 0);
 }
 
 function greyscaleImage(imageData) {
-    console.log("imagedata: ", imageData);
     let greyscaleAvg = 0;
     for (let i = 0; i < imageData.data.length; i += 4) {
         greyscaleAvg = Math.round(imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
         imageData.data[i] = imageData.data[i + 1] = imageData.data[i + 2] = greyscaleAvg;
     }
-    console.log("greyscaled image data: ", imageData);
     context.putImageData(imageData, 0, 0);
 }
 
 function saveImage() {
-    let currentDate = `${String((date.getMonth() + 1)).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`;
-    let currentTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    const currentDate = `${String((date.getMonth() + 1)).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`;
+    const currentTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
     let importFileName = imageUploadInput.files[0].name;
     downloadLink.setAttribute('download', `${importFileName.substring(0 , importFileName.lastIndexOf("."))} ${currentDate} ${currentTime}.png`);
     downloadLink.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     downloadLink.click();
 }
-
-let date = new Date();
-console.log(`${String((date.getMonth() + 1)).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${date.getFullYear()}`);
-
-console.log(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);

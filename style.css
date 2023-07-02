@@ -134,7 +134,6 @@ footer{
         display: block;
     }
     #canvas-div {
-        display: flex;
-        justify-content: left;
+        text-align: left !important;
     }
 }
