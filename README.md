@@ -1,4 +1,4 @@
-#Image Transformer
+# Image Transformer
 
 This is an application made purely out of native HTML, CSS, and Javascript.
 
