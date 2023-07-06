@@ -26,13 +26,18 @@ const downloadLink = document.getElementById("download-link");
 
 const supportedFileTypes = [".png", ".jpg", ".jpeg", ".webp", ".pjp", ".jfif", ".pjpeg"];
 
+// create new image on generate-image-btn click
+generateImageBtn.onclick = () => checkConditions(Number(pixelCountSlider.value));
+saveBtn.onclick = () => saveImage();
+printBtn.onclick = () => print();
+
 // obvious
-updatePixelCountDisplay = (e) => {
+function updatePixelCountDisplay(e) {
     pixelCountDisplay.innerText = String(e.target.value);
     updateOtherInfo();
 }
 
-onFilterChange = (e) => {
+function onFilterChange(e) {
     let pixelSettings = document.getElementsByClassName("pixel-settings");
     switch (e.target.value) {
         case "pixel":
@@ -44,11 +49,6 @@ onFilterChange = (e) => {
             break;
     }
 } 
-
-// create new image on generate-image-btn click
-generateImageBtn.onclick = () => checkConditions(Number(pixelCountSlider.value));
-saveBtn.onclick = () => saveImage();
-printBtn.onclick = () => print();
 
 // display user-imported image
 function displayImageFile(e) {
@@ -150,8 +150,6 @@ function pixelateImage(pixelCountWidth) {
 
     image.style.width = image.naturalWidth + "px";
     image.style.height = image.naturalHeight + "px";
-
-    let newImageDataArr = context.getImageData(0, 0,  canvas.width, canvas.height).data;
 }
 
 // average all rgba values for each "pixel"
