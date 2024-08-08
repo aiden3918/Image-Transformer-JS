@@ -203,7 +203,7 @@ function saveImage() {
     const currentTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
     let importFileName = imageUploadInput.files[0].name;
-    downloadLink.setAttribute('download', `${importFileName.substring(0 , importFileName.lastIndexOf("."))} ${currentDate} ${currentTime}.png`);
+    downloadLink.setAttribute('download', `${importFileName.substring(0 , importFileName.lastIndexOf("."))}_${currentDate}_${currentTime}.png`);
     downloadLink.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
     downloadLink.click();
 }
